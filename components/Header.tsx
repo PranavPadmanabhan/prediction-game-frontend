@@ -9,50 +9,76 @@ import {
 import { abi, tokenABI } from "../constants/constants";
 import { useMoralis, useWeb3Contract } from "react-moralis";
 import { ethers } from "ethers";
+import { useRouter } from "next/router";
 
 function Header() {
   const { chainId: chainHex, account, isWeb3Enabled } = useMoralis();
   const [balance, setbalance] = useState<string>("");
+  const [refunds, setRefunds] = useState("");
+  const [rewards, setRewards] = useState("");
+  const [amountRefund, setamountRefund] = useState<any>("");
+  const [amountReward, setamountReward] = useState<any>("");
   const chainId = parseInt(chainHex!);
+  const router = useRouter();
 
-  const {
-    runContractFunction: mint,
-    isFetching: dataFetching,
-    isLoading: mining,
-  } = useWeb3Contract({
-    abi: tokenABI,
-    contractAddress: getTokenAddress(chainId),
-    functionName: "mint",
-    params: {},
-  });
-
-  const {
-    runContractFunction: balanceOf,
-    isFetching: balanceFetching,
-    isLoading: balanceLoading,
-  } = useWeb3Contract({
-    abi: tokenABI,
-    contractAddress: getTokenAddress(chainId),
-    functionName: "balanceOf",
-    params: { account: account },
-  });
   const getBalance = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    const balance = await contract?.provider.getBalance(account!);
+    const balance = await contract?.balanceOf(account!);
     setbalance(ethers.utils.formatEther(balance!.toString()).toString());
   };
 
   const listenPrediction = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    await contract?.on("NewPrediction", async () => {
-      getBalance();
+    await new Promise<void>((resolve, reject) => {
+      contract?.on("NewPrediction", async () => {
+        try {
+          getBalance();
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+  };
+
+  const listenForTopUp = async () => {
+    const contract = await getPredictionContract("provider", chainId);
+    await new Promise<void>((resolve, reject) => {
+      contract?.on("WithdrawSuccessfull", async () => {
+        try {
+          getBalance();
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+  };
+
+  const listenForWithdraw = async () => {
+    const contract = await getPredictionContract("provider", chainId);
+    await new Promise<void>((resolve, reject) => {
+      contract?.on("TopUpSuccessfull", async () => {
+        try {
+          getBalance();
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
     });
   };
 
   const listenForResult = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    await contract?.on("ContestCompleted", async () => {
-      getBalance();
+    await new Promise<void>((resolve, reject) => {
+      contract?.on("ContestCompleted", async () => {
+        try {
+          getBalance();
+        } catch (error) {
+          reject(error);
+        }
+      });
     });
   };
 
@@ -61,16 +87,21 @@ function Header() {
       getBalance();
       listenForResult();
       listenPrediction();
+      listenForTopUp();
+      listenForWithdraw();
     }
   }, [account]);
 
   return (
     <header className="w-full h-[10vh] bg-transparent flex items-center justify-end border-b-2 border-b-[#EFEFEF] px-3 box-border">
       {account && getContractAddress(chainId) ? (
-        <div className="w-[20%] h-full flex items-center justify-start">
-          <h1 className="text-white mr-5 text-[0.9rem]">
+        <div className="w-[70%] h-full flex items-center justify-end">
+          <button
+            onClick={() => router.push("/wallet")}
+            className="w-[150px] h-[35px] rounded-md bg-gray-200  text-black mr-5 text-[0.7rem]"
+          >
             Balance : {balance.slice(0, 8)} ETH
-          </h1>
+          </button>
         </div>
       ) : (
         <ConnectButton moralisAuth={false} />

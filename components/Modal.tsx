@@ -37,23 +37,11 @@ function Modal({ id, setShowModal, showModal }: modal) {
     abi: abi,
     contractAddress: getContractAddress(chainId),
     functionName: "predict",
-    msgValue: ethers.utils.parseEther("0.05").toString(),
-    params: { contestId: id, _predictedValue: parseInt(value) },
+    params: {
+      contestId: id,
+      _predictedValue: parseInt(value),
+    },
   });
-
-  const { runContractFunction: setUpResult } = useWeb3Contract({
-    abi: abi,
-    contractAddress: getContractAddress(chainId),
-    functionName: "setUpResult",
-    params: { contestId: id, _winners: winners },
-  });
-
-  // const { runContractFunction: allowance } = useWeb3Contract({
-  //   abi: tokenABI,
-  //   contractAddress: getTokenAddress(chainId),
-  //   functionName: "allowance",
-  //   params: { owner: getContractAddress(chainId), spender: account },
-  // });
 
   const getData = async () => {
     const data = await getPredictions();
@@ -78,9 +66,6 @@ function Modal({ id, setShowModal, showModal }: modal) {
 
   const listenPrediction = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    // await contract?.on("NewPrediction", async () => {
-    //   getData();
-    // });
     await new Promise<void>(async (resolve, reject) => {
       contract?.on("NewPrediction", async () => {
         try {
@@ -93,26 +78,22 @@ function Modal({ id, setShowModal, showModal }: modal) {
     });
   };
 
-  async function update() {
-    const contract = await getPredictionContract("provider", chainId);
-    for (let i = 0; i < 300; i++) {
-      setwinners([account]);
-    }
-
-    await setUpResult();
-    const data = await contract?.getWinnerList();
-    console.log(data?.toString());
-  }
-
   const listenForResult = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    await contract?.on("ContestCompleted", async () => {
-      getData();
+
+    await new Promise<void>(async (resolve, reject) => {
+      contract?.on("ContestCompleted", async () => {
+        try {
+          getData();
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
     });
   };
 
   const participate = async (value: string) => {
-    const balance = await getBalance();
     if (value == ("" || null)) return;
     await predict({
       onSuccess: () => {
@@ -158,6 +139,7 @@ function Modal({ id, setShowModal, showModal }: modal) {
             <h1 className="text-gray-600 font-light ">
               Current Value : {latestPrice}
             </h1>
+
             <button
               onClick={async () => {
                 await participate(value);
