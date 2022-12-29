@@ -19,9 +19,17 @@ export default function Home() {
   const [contests, setContests] = useState<any>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [id, setId] = useState<number>(1);
+  const [fee, setfee] = useState<any>();
 
   const { chainId: chainHex, account, isWeb3Enabled } = useMoralis();
   const chainId = parseInt(chainHex!);
+
+  const { runContractFunction: getFee } = useWeb3Contract({
+    abi: abi,
+    contractAddress: getContractAddress(chainId),
+    functionName: "getEntranceFee",
+    params: {},
+  });
 
   const { runContractFunction: getContests } = useWeb3Contract({
     abi: abi,
@@ -54,10 +62,16 @@ export default function Home() {
     setContests(contests);
   };
 
+  const GetContestFee = async () => {
+    const price = await getFee();
+    setfee(ethers.utils.formatEther(price!.toString()));
+  };
+
   useEffect(() => {
     if (isWeb3Enabled) {
       updateUI();
       GetContest();
+      GetContestFee();
     }
   }, [isWeb3Enabled, account]);
 
@@ -84,7 +98,7 @@ export default function Home() {
               setId(item.id.toString());
               setShowModal(true);
             }}
-            fee={1}
+            fee={fee}
             key={index}
           />
         ))}
