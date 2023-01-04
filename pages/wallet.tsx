@@ -122,7 +122,7 @@ const Wallet = () => {
           </button>
           <button
             onClick={async () => {
-              if (balance >= 0.05) {
+              if (balance >= 0.0005) {
                 await withdraw(amount).then(() => setAmount(""));
               } else {
                 console.log("error");
