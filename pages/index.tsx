@@ -8,6 +8,7 @@ import Modal from "../components/Modal";
 import PredictionCards from "../components/PredictionCards";
 import { getContractAddress, getTokenAddress } from "../utils/helper-functions";
 import { abi } from "../constants/constants";
+import { useRouter } from "next/router";
 
 declare global {
   interface Window {
@@ -17,12 +18,11 @@ declare global {
 
 export default function Home() {
   const [contests, setContests] = useState<any>([]);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [id, setId] = useState<number>(1);
   const [fee, setfee] = useState<any>();
 
   const { chainId: chainHex, account, isWeb3Enabled } = useMoralis();
   const chainId = parseInt(chainHex!);
+  const router = useRouter();
 
   const { runContractFunction: getFee } = useWeb3Contract({
     abi: abi,
@@ -35,13 +35,6 @@ export default function Home() {
     abi: abi,
     contractAddress: getContractAddress(chainId),
     functionName: "getContests",
-    params: {},
-  });
-
-  const { runContractFunction: getLatestTimeStamp } = useWeb3Contract({
-    abi: abi,
-    contractAddress: getContractAddress(chainId),
-    functionName: "getLatestTimeStamp",
     params: {},
   });
 
@@ -92,18 +85,14 @@ export default function Home() {
       </Head>
       <Header />
       <div className="w-full h-[89vh] bg-transparent grid grid-cols-4 place-content-start place-items-center pt-[5%] pb-3 gap-y-[10%] mb-6 overflow-y-scroll scrollbar-hide">
-        {contests.map((item: any, index: number) => (
+        {contests?.map((item: any, index: number) => (
           <PredictionCards
-            onClick={() => {
-              setId(item.id.toString());
-              setShowModal(true);
-            }}
+            onClick={() => router.push(`/predictions/${item.id.toString()}`)}
             fee={fee}
             key={index}
           />
         ))}
       </div>
-      <Modal id={id} setShowModal={setShowModal} showModal={showModal} />
     </div>
   );
 }

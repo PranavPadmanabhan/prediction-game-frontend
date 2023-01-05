@@ -110,7 +110,7 @@ const Wallet = () => {
         <div className="w-full h-[60px] flex items-center justify-center">
           <button
             onClick={async () => {
-              if (parseFloat(amount) >= 0.05) {
+              if (parseFloat(amount) >= 0.0005) {
                 await topUp(amount).then(() => setAmount(""));
               } else {
                 console.log("error");

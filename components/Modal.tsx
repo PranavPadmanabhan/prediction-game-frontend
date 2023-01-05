@@ -10,6 +10,7 @@ import {
 import { abi, tokenABI } from "../constants/constants";
 import { ethers } from "ethers";
 import { FaPlus } from "react-icons/fa";
+import { GetServerSideProps } from "next";
 type modal = {
   id: number;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -44,11 +45,16 @@ function Modal({ id, setShowModal, showModal }: modal) {
   });
 
   const getData = async () => {
-    const data = await getPredictions();
-    const balance = await getBalance();
-    setBalance(ethers.utils.formatEther(balance!.toString()).toString());
-    getUpdatedPrice();
-    setpredictions(data);
+    try {
+      fetch(`http://localhost:5000/predictions?contestId=${id}`)
+        .then((res) => res.json())
+        .then((data) => setpredictions(data));
+      const balance = await getBalance();
+      setBalance(ethers.utils.formatEther(balance!.toString()).toString());
+      getUpdatedPrice();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const getUpdatedPrice = async () => {
@@ -82,8 +88,9 @@ function Modal({ id, setShowModal, showModal }: modal) {
     const contract = await getPredictionContract("provider", chainId);
 
     await new Promise<void>(async (resolve, reject) => {
-      contract?.on("ContestCompleted", async () => {
+      contract?.on("ResultAnnounced", async () => {
         try {
+          // fetch("")
           getData();
           resolve();
         } catch (error) {
@@ -155,7 +162,7 @@ function Modal({ id, setShowModal, showModal }: modal) {
               Last Predictions
             </h1>
             <div className="w-[95%] h-[90%] flex flex-col items-center justify-start pt-[5%] box-border overflow-y-scroll scrollbar-hide">
-              {predictions!.map((item: any, index: number) => (
+              {predictions?.map((item: any, index: number) => (
                 <h1
                   key={index}
                   className="font-medium text-gray-700 text-[1.2rem] mb-2"
