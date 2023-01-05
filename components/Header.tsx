@@ -82,6 +82,20 @@ function Header() {
     });
   };
 
+  const listenForContestCompletion = async () => {
+    const contract = await getPredictionContract("provider", chainId);
+    await new Promise<void>(async (resolve, reject) => {
+      contract?.on("ContestCompleted", async () => {
+        try {
+          getBalance();
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+  };
+
   useEffect(() => {
     if (account) {
       getBalance();
@@ -89,6 +103,7 @@ function Header() {
       listenPrediction();
       listenForTopUp();
       listenForWithdraw();
+      listenForContestCompletion();
     }
   }, [account]);
 

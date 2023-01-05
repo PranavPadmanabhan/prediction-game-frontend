@@ -88,6 +88,20 @@ const Prediction = ({ data, contestId }: props) => {
     });
   };
 
+  const listenForContestCompletion = async () => {
+    const contract = await getPredictionContract("provider", chainId);
+    await new Promise<void>(async (resolve, reject) => {
+      contract?.on("ContestCompleted", async () => {
+        try {
+          getData();
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+  };
+
   const listenForResult = async () => {
     const contract = await getPredictionContract("provider", chainId);
 
@@ -122,6 +136,7 @@ const Prediction = ({ data, contestId }: props) => {
       getUpdatedPrice();
       listenPrediction();
       listenForResult();
+      listenForContestCompletion();
     }
   }, [account]);
 

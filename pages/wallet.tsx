@@ -75,11 +75,26 @@ const Wallet = () => {
     });
   };
 
+  const listenForContestCompletion = async () => {
+    const contract = await getPredictionContract("provider", chainId);
+    await new Promise<void>(async (resolve, reject) => {
+      contract?.on("ContestCompleted", async () => {
+        try {
+          getBalance();
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+  };
+
   useEffect(() => {
     if (isWeb3Enabled) {
       getBalance();
       listenForTopUp();
       listenForWithdraw();
+      listenForContestCompletion();
     }
 
     return () => {
