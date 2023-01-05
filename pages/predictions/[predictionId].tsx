@@ -25,6 +25,7 @@ const Prediction = ({ data, contestId }: props) => {
   const [predictions, setpredictions] = useState<any>();
   const [latestPrice, setLatestPrice] = useState<number>(0);
   const [balance, setBalance] = useState<any>();
+  const [publishing, setPublishing] = useState<boolean>(false);
   const amount = ethers.utils.parseEther("1");
   const [winners, setwinners] = useState<Array<any>>([]);
   const { chainId: chainHex, account, isWeb3Enabled } = useMoralis();
@@ -60,7 +61,12 @@ const Prediction = ({ data, contestId }: props) => {
       )
         .then((res) => res.json())
         .then((data) => {
-          setwinners(data);
+          if (data?.length == 100) {
+            setwinners(data);
+            if (typeof window !== undefined) {
+              window.localStorage.setItem("winners", JSON.stringify(data));
+            }
+          }
           getData();
         });
     } catch (error) {
@@ -94,6 +100,7 @@ const Prediction = ({ data, contestId }: props) => {
       contract?.on("ContestCompleted", async () => {
         try {
           getData();
+          setPublishing(false);
           resolve();
         } catch (error) {
           reject(error);
@@ -110,6 +117,7 @@ const Prediction = ({ data, contestId }: props) => {
         try {
           // fetch("")
           getResult();
+          setPublishing(true);
           resolve();
         } catch (error) {
           reject(error);
@@ -138,7 +146,13 @@ const Prediction = ({ data, contestId }: props) => {
       listenForResult();
       listenForContestCompletion();
     }
-  }, [account]);
+    if (typeof window! === undefined && winners?.length === 0) {
+      const data = window.localStorage.getItem("winners");
+      if (data) {
+        setwinners(data);
+      }
+    }
+  }, [account, winners]);
 
   return (
     <div
@@ -180,17 +194,36 @@ const Prediction = ({ data, contestId }: props) => {
         <div className="h-[95%] w-[1px] border-[1px] border-gray-500"></div>
         <div className="w-[45%] h-full flex flex-col items-center justify-start pt-[5%] box-border">
           <h1 className="font-bold text-[1.5rem] text-gray-500 underline">
-            Last Predictions
+            {predictions?.length <= 0 && winners?.length > 0
+              ? "Last Winners"
+              : "Last Predictions"}
           </h1>
           <div className="w-[95%] h-[90%] flex flex-col items-center justify-start pt-[5%] box-border overflow-y-scroll scrollbar-hide">
-            {predictions?.map((item: any, index: number) => (
-              <h1
-                key={index}
-                className="font-medium text-gray-700 text-[1.2rem] mb-2"
-              >
-                {index + 1}. {item?.predictedValue?.toString()}
-              </h1>
-            ))}
+            {publishing ? (
+              <div className="w-full h-full flex flex-col items-center justify-center">
+                <h1 className="text-black font-medium text-[0.9rem]">
+                  Result Publishing please wait
+                </h1>
+              </div>
+            ) : predictions?.length <= 0 && winners?.length > 0 ? (
+              winners?.map((item: any, index: number) => (
+                <h1
+                  key={index}
+                  className="font-medium text-gray-700 text-[1.2rem] mb-2"
+                >
+                  {index + 1}. {item?.user?.toString()}
+                </h1>
+              ))
+            ) : (
+              predictions?.map((item: any, index: number) => (
+                <h1
+                  key={index}
+                  className="font-medium text-gray-700 text-[1.2rem] mb-2"
+                >
+                  {index + 1}. {item?.predictedValue?.toString()}
+                </h1>
+              ))
+            )}
           </div>
         </div>
       </div>
