@@ -70,6 +70,10 @@ const Prediction = ({ data, contestId }: props) => {
                 "winners",
                 JSON.stringify(data.results)
               );
+              window.localStorage.setItem(
+                "reward",
+                JSON.stringify(data.rewards)
+              );
             }
           }
           getData();
@@ -153,8 +157,10 @@ const Prediction = ({ data, contestId }: props) => {
     }
     if (typeof window! === undefined && winners?.length === 0) {
       const data = window.localStorage.getItem("winners");
+      const reward = window.localStorage.getItem("reward");
       if (data) {
         setwinners(JSON.parse(data));
+        setRewards(JSON.parse(reward));
       }
     }
   }, [account, winners]);
