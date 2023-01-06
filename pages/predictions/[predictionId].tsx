@@ -30,6 +30,7 @@ const Prediction = ({ data, contestId }: props) => {
   const [winners, setwinners] = useState<Array<any>>([]);
   const { chainId: chainHex, account, isWeb3Enabled } = useMoralis();
   const chainId = parseInt(chainHex!);
+  const [rewards, setRewards] = useState<any>([]);
 
   const { runContractFunction: predict } = useWeb3Contract({
     abi: abi,
@@ -61,10 +62,14 @@ const Prediction = ({ data, contestId }: props) => {
       )
         .then((res) => res.json())
         .then((data) => {
-          if (data?.length == 100) {
-            setwinners(data);
+          if (data?.results?.length == 100) {
+            setwinners(data?.results);
+            setRewards(data?.rewards);
             if (typeof window !== undefined) {
-              window.localStorage.setItem("winners", JSON.stringify(data));
+              window.localStorage.setItem(
+                "winners",
+                JSON.stringify(data.results)
+              );
             }
           }
           getData();
@@ -211,7 +216,9 @@ const Prediction = ({ data, contestId }: props) => {
                   key={index}
                   className="font-medium text-gray-700 text-[1.2rem] mb-2"
                 >
-                  {index + 1}. {item?.user?.toString()}
+                  {index + 1}. {item?.user?.toString()} -{" "}
+                  {item?.predictedValue?.toString()} -{" "}
+                  {ethers.utils.formatEther(rewards[index]).toString()}
                 </h1>
               ))
             ) : (
