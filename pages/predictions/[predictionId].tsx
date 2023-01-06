@@ -224,7 +224,7 @@ const Prediction = ({ data, contestId }: props) => {
                 >
                   {index + 1}. {item?.user?.toString()} -{" "}
                   {item?.predictedValue?.toString()} -{" "}
-                  {ethers.utils.formatEther(rewards[index]).toString()}
+                  {rewards[index].toString()}
                 </h1>
               ))
             ) : (
