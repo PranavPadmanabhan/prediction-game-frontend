@@ -149,7 +149,7 @@ const Prediction = ({ data, contestId }: props) => {
     if (typeof window! === undefined && winners?.length === 0) {
       const data = window.localStorage.getItem("winners");
       if (data) {
-        setwinners(data);
+        setwinners(JSON.parse(data));
       }
     }
   }, [account, winners]);
