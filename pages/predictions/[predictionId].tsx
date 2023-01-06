@@ -214,7 +214,7 @@ const Prediction = ({ data, contestId }: props) => {
               winners?.map((item: any, index: number) => (
                 <h1
                   key={index}
-                  className="font-medium text-gray-700 text-[1.2rem] mb-2"
+                  className="font-medium text-gray-700 text-[0.8rem] mb-2"
                 >
                   {index + 1}. {item?.user?.toString()} -{" "}
                   {item?.predictedValue?.toString()} -{" "}
