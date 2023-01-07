@@ -45,7 +45,7 @@ const Prediction = ({ data, contestId }: props) => {
   const getData = async () => {
     try {
       fetch(
-        `https://predictions-api-production.up.railway.app/predictions?contestId=${contestId}`
+        `https://prediction-api-production.up.railway.app/predictions?contestId=${contestId}`
       )
         .then((res) => res.json())
         .then((data) => setpredictions(data));
@@ -58,7 +58,7 @@ const Prediction = ({ data, contestId }: props) => {
   const getResult = async () => {
     try {
       fetch(
-        `https://predictions-api-production.up.railway.app/getResult?contestId=${contestId}`
+        `https://prediction-api-production.up.railway.app/getResult?contestId=${contestId}`
       )
         .then((res) => res.json())
         .then((data) => {
@@ -148,9 +148,14 @@ const Prediction = ({ data, contestId }: props) => {
   };
 
   useEffect(() => {
+    let timer: any;
+
     if (account) {
       getData();
-      getUpdatedPrice();
+      timer = setInterval(() => {
+        getUpdatedPrice();
+        console.log("running");
+      }, 2000);
       listenPrediction();
       listenForResult();
       listenForContestCompletion();
@@ -163,6 +168,9 @@ const Prediction = ({ data, contestId }: props) => {
         setRewards(JSON.parse(reward));
       }
     }
+    return () => {
+      clearInterval(timer);
+    };
   }, [winners]);
 
   return (
@@ -249,7 +257,7 @@ export default Prediction;
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const predictionId = context.query.predictionId;
   const response = await fetch(
-    `https://predictions-api-production.up.railway.app/predictions?contestId=${predictionId}`
+    `https://prediction-api-production.up.railway.app/predictions?contestId=${predictionId}`
   );
 
   const data = await response.json();
