@@ -22,6 +22,11 @@
   },
   {
     "inputs": [],
+    "name": "Admin_Withdraw_Failed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "Prediction__Limit_Exceeded",
     "type": "error"
   },
