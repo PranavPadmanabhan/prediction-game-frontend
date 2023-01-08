@@ -57,6 +57,7 @@ const Prediction = ({ data, contestId }: props) => {
 
   const getResult = async () => {
     try {
+      setPublishing(true);
       const response = await fetch(
         `https://prediction-backend-production.up.railway.app/getResult?contestId=${contestId}`
       );
@@ -102,8 +103,8 @@ const Prediction = ({ data, contestId }: props) => {
     await new Promise<void>(async (resolve, reject) => {
       contract?.on("ContestCompleted", async () => {
         try {
-          getData();
-          setPublishing(false);
+          getData().finally(() => setPublishing(false));
+
           resolve();
         } catch (error) {
           reject(error);
@@ -145,7 +146,7 @@ const Prediction = ({ data, contestId }: props) => {
     let timer: any;
 
     if (account) {
-      // getData();
+      getData();
       timer = setInterval(() => {
         getUpdatedPrice();
         console.log("running");
