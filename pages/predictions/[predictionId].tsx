@@ -44,11 +44,11 @@ const Prediction = ({ data, contestId }: props) => {
 
   const getData = async () => {
     try {
-      fetch(
-        `https://prediction-backend-production.up.railway.app/predictions?contestId=${contestId}`,
-        { mode: "no-cors" }
-      ).then((res) => console.log(res.body));
-      // .then((data) => setpredictions(data));
+      const response = await fetch(
+        `https://prediction-backend-production.up.railway.app/predictions?contestId=${contestId}`
+      );
+      const data = await response.json();
+      setpredictions(data);
       getUpdatedPrice();
     } catch (error) {
       console.error(error);
@@ -57,28 +57,21 @@ const Prediction = ({ data, contestId }: props) => {
 
   const getResult = async () => {
     try {
-      fetch(
-        `https://prediction-backend-production.up.railway.app/getResult?contestId=${contestId}`,
-        { mode: "no-cors" }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.results?.length == 100) {
-            setwinners(data?.results);
-            setRewards(data?.rewards);
-            if (typeof window !== undefined) {
-              window.localStorage.setItem(
-                "winners",
-                JSON.stringify(data.results)
-              );
-              window.localStorage.setItem(
-                "reward",
-                JSON.stringify(data.rewards)
-              );
-            }
-          }
-          getData();
-        });
+      const response = await fetch(
+        `https://prediction-backend-production.up.railway.app/getResult?contestId=${contestId}`
+      );
+
+      const data = await response.json();
+
+      if (data?.results?.length == 100) {
+        setwinners(data?.results);
+        setRewards(data?.rewards);
+        if (typeof window !== undefined) {
+          window.localStorage.setItem("winners", JSON.stringify(data.results));
+          window.localStorage.setItem("reward", JSON.stringify(data.rewards));
+        }
+      }
+      getData();
     } catch (error) {
       console.error(error);
     }
@@ -258,8 +251,7 @@ export default Prediction;
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const predictionId = context.query.predictionId;
   const response = await fetch(
-    `https://prediction-backend-production.up.railway.app/predictions?contestId=${predictionId}`,
-    { mode: "no-cors" }
+    `https://prediction-backend-production.up.railway.app/predictions?contestId=${predictionId}`
   );
 
   const data = await response.json();
