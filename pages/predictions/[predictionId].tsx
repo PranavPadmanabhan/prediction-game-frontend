@@ -77,6 +77,7 @@ const Prediction = ({ data, contestId }: props) => {
           }
         }
         getData();
+        setPublishing(false);
       }, contestId * 5 * 1000);
     } catch (error) {
       console.error(error);
@@ -109,7 +110,6 @@ const Prediction = ({ data, contestId }: props) => {
       contract?.on("ContestCompleted", async () => {
         try {
           getData().finally(() => setPublishing(false));
-
           resolve();
         } catch (error) {
           reject(error);
