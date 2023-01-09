@@ -1,8 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios";
 import { ethers } from "ethers";
-import { GetServerSideProps, NextPage } from "next";
+import {
+  GetServerSideProps,
+  GetStaticPaths,
+  GetStaticProps,
+  NextPage,
+} from "next";
 import { useRouter } from "next/router";
+import { ParsedUrlQuery } from "querystring";
 import React, { useContext, useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useMoralis, useWeb3Contract } from "react-moralis";
@@ -45,7 +51,7 @@ const Prediction = ({ data, contestId }: props) => {
   const getData = async () => {
     try {
       const response = await fetch(
-        `https://prediction-backend-production.up.railway.app/predictions?contestId=${contestId}`
+        `https://prediction-backend.vercel.app/predictions?contestId=${contestId}`
       );
       const data = await response.json();
       setpredictions(data);
@@ -59,11 +65,10 @@ const Prediction = ({ data, contestId }: props) => {
     try {
       setPublishing(true);
       const response = await fetch(
-        `https://prediction-backend-production.up.railway.app/getResult?contestId=${contestId}`
+        `https://prediction-backend.vercel.app/getResult?contestId=${contestId}`
       );
 
       const data = await response.json();
-
       if (data?.results?.length == 100) {
         setwinners(data?.results);
         setRewards(data?.rewards);
@@ -71,6 +76,8 @@ const Prediction = ({ data, contestId }: props) => {
           window.localStorage.setItem("winners", JSON.stringify(data.results));
           window.localStorage.setItem("reward", JSON.stringify(data.rewards));
         }
+      } else if (data?.results.length == 0) {
+        setPublishing(false);
       }
       getData();
       setPublishing(false);
@@ -105,6 +112,7 @@ const Prediction = ({ data, contestId }: props) => {
       contract?.on("ContestCompleted", async () => {
         try {
           getData().finally(() => setPublishing(false));
+          console.log("ContestCompleted");
 
           resolve();
         } catch (error) {
@@ -120,8 +128,8 @@ const Prediction = ({ data, contestId }: props) => {
     await new Promise<void>(async (resolve, reject) => {
       contract?.on("ResultAnnounced", async () => {
         try {
-          // fetch("")
-          getResult();
+          console.log("Announcing Result");
+          await getResult();
           setPublishing(true);
           resolve();
         } catch (error) {
@@ -148,10 +156,7 @@ const Prediction = ({ data, contestId }: props) => {
 
     if (account) {
       getData();
-      timer = setInterval(() => {
-        getUpdatedPrice();
-        console.log("running");
-      }, 2000);
+      getUpdatedPrice();
       listenPrediction();
       listenForResult();
       listenForContestCompletion();
@@ -250,10 +255,36 @@ const Prediction = ({ data, contestId }: props) => {
 
 export default Prediction;
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const predictionId = context.query.predictionId;
+export const getStaticPaths: GetStaticPaths = async () => {
+  const data = await fetch("https://prediction-backend.vercel.app/getContests");
+  const contests = await data.json();
+  const paths = contests.map((item: any) => {
+    return {
+      params: {
+        predictionId: item.id.toString(),
+      },
+    };
+  });
+  return {
+    paths,
+    fallback: false,
+  };
+};
+
+type Props = {
+  data: any[];
+};
+
+interface Params extends ParsedUrlQuery {
+  predictionId: string;
+}
+
+export const getStaticProps: GetStaticProps<Props, Params> = async (
+  context
+) => {
+  const { predictionId } = context.params!;
   const response = await fetch(
-    `https://prediction-backend-production.up.railway.app/predictions?contestId=${predictionId}`
+    `https://prediction-backend.vercel.app/predictions?contestId=${predictionId}`
   );
 
   const data = await response.json();
