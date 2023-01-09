@@ -51,7 +51,8 @@ const Prediction = ({ data, contestId }: props) => {
   const getData = async () => {
     try {
       const response = await fetch(
-        `https://prediction-backend.vercel.app/predictions?contestId=${contestId}`
+        `https://prediction-backend.vercel.app/predictions?contestId=${contestId}`,
+        { mode: "no-cors" }
       );
       const data = await response.json();
       setpredictions(data);
@@ -65,7 +66,8 @@ const Prediction = ({ data, contestId }: props) => {
     try {
       setPublishing(true);
       const response = await fetch(
-        `https://prediction-backend.vercel.app/getResult?contestId=${contestId}`
+        `https://prediction-backend.vercel.app/getResult?contestId=${contestId}`,
+        { mode: "no-cors" }
       );
 
       const data = await response.json();
@@ -256,7 +258,10 @@ const Prediction = ({ data, contestId }: props) => {
 export default Prediction;
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const data = await fetch("https://prediction-backend.vercel.app/getContests");
+  const data = await fetch(
+    "https://prediction-backend.vercel.app/getContests",
+    { mode: "no-cors" }
+  );
   const contests = await data.json();
   const paths = contests.map((item: any) => {
     return {
@@ -284,7 +289,8 @@ export const getStaticProps: GetStaticProps<Props, Params> = async (
 ) => {
   const { predictionId } = context.params!;
   const response = await fetch(
-    `https://prediction-backend.vercel.app/predictions?contestId=${predictionId}`
+    `https://prediction-backend.vercel.app/predictions?contestId=${predictionId}`,
+    { mode: "no-cors" }
   );
 
   const data = await response.json();
