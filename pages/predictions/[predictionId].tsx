@@ -57,22 +57,27 @@ const Prediction = ({ data, contestId }: props) => {
 
   const getResult = async () => {
     try {
-      setPublishing(true);
-      const response = await fetch(
-        `https://prediction-backend-production.up.railway.app/getResult?contestId=${contestId}`
-      );
+      setTimeout(async () => {
+        setPublishing(true);
+        const response = await fetch(
+          `https://prediction-backend-production.up.railway.app/getResult?contestId=${contestId}`
+        );
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (data?.results?.length == 100) {
-        setwinners(data?.results);
-        setRewards(data?.rewards);
-        if (typeof window !== undefined) {
-          window.localStorage.setItem("winners", JSON.stringify(data.results));
-          window.localStorage.setItem("reward", JSON.stringify(data.rewards));
+        if (data?.results?.length == 100) {
+          setwinners(data?.results);
+          setRewards(data?.rewards);
+          if (typeof window !== undefined) {
+            window.localStorage.setItem(
+              "winners",
+              JSON.stringify(data.results)
+            );
+            window.localStorage.setItem("reward", JSON.stringify(data.rewards));
+          }
         }
-      }
-      getData();
+        getData();
+      }, contestId * 5 * 1000);
     } catch (error) {
       console.error(error);
     }
