@@ -51,7 +51,9 @@ const Prediction = ({ data, contestId }: props) => {
   const getData = async () => {
     try {
       const response = await fetch(
-        `https://prediction-backend.vercel.app/predictions?contestId=${contestId}`,
+        `https://prediction-backend.vercel.app/predictions?contestId=${parseInt(
+          contestId
+        )}`,
         { mode: "no-cors" }
       );
       const data = await response.json();
@@ -66,7 +68,9 @@ const Prediction = ({ data, contestId }: props) => {
     try {
       setPublishing(true);
       const response = await fetch(
-        `https://prediction-backend.vercel.app/getResult?contestId=${contestId}`,
+        `https://prediction-backend.vercel.app/getResult?contestId=${parseInt(
+          contestId
+        )}`,
         { mode: "no-cors" }
       );
 
@@ -289,7 +293,9 @@ export const getStaticProps: GetStaticProps<Props, Params> = async (
 ) => {
   const { predictionId } = context.params!;
   const response = await fetch(
-    `https://prediction-backend.vercel.app/predictions?contestId=${predictionId}`,
+    `https://prediction-backend.vercel.app/predictions?contestId=${parseInt(
+      predictionId
+    )}`,
     { mode: "no-cors" }
   );
 
