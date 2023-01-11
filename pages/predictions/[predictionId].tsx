@@ -52,7 +52,9 @@ const Prediction = ({ data, contestId }: props) => {
   const getData = async () => {
     try {
       fetch(
-        `http://localhost:5002/predictions?contestId=${parseInt(contestId)}`
+        `https://prediction-backend.vercel.app/predictions?contestId=${parseInt(
+          contestId
+        )}`
         // { mode: "no-cors" }
       )
         .then((res) => res.json())
@@ -71,7 +73,7 @@ const Prediction = ({ data, contestId }: props) => {
     try {
       setPublishing(true);
       const response = await fetch(
-        `http://localhost:5002/getResult?contestId=${contestId}`
+        `https://prediction-backend.vercel.app/getResult?contestId=${contestId}`
         // { mode: "no-cors" }
       );
 
@@ -157,24 +159,6 @@ const Prediction = ({ data, contestId }: props) => {
 
     setValue("");
   };
-
-  const countDown = async () => {
-    const data = await fetch("http://localhost:5002/getLatestTime");
-    const time = await data.json();
-    const expire = new Date(time);
-
-    var countDownDate = expire.getTime(); //this the which i have to count for difference
-    let distance: number;
-
-    var now = new Date().getTime();
-
-    distance = countDownDate - now;
-    console.log(distance);
-  };
-
-  // useEffect(() => {
-  //   countDown();
-  // }, []);
 
   useEffect(() => {
     if (account) {
@@ -278,7 +262,7 @@ export default Prediction;
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const data = await fetch(
-    "http://localhost:5002/getContests"
+    "https://prediction-backend.vercel.app/getContests"
     // { mode: "no-cors"}
   );
   const contests = await data.json();
@@ -308,7 +292,7 @@ export const getStaticProps: GetStaticProps<Props, Params> = async (
 ) => {
   const { predictionId } = context.params!;
   const response = await fetch(
-    `http://localhost:5002/predictions?contestId=${predictionId}`
+    `https://prediction-backend.vercel.app/predictions?contestId=${predictionId}`
     // { mode: "no-cors" }
   );
 
