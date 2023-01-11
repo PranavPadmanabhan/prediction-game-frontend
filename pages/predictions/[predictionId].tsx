@@ -52,7 +52,7 @@ const Prediction = ({ data, contestId }: props) => {
   const getData = async () => {
     try {
       fetch(
-        `https://prediction-backend.vercel.app/predictions?contestId=${parseInt(
+        `https://prediction-backend-production.up.railway.app/predictions?contestId=${parseInt(
           contestId
         )}`
         // { mode: "no-cors" }
@@ -73,7 +73,7 @@ const Prediction = ({ data, contestId }: props) => {
     try {
       setPublishing(true);
       const response = await fetch(
-        `https://prediction-backend.vercel.app/getResult?contestId=${contestId}`
+        `https://prediction-backend-production.up.railway.app/getResult?contestId=${contestId}`
         // { mode: "no-cors" }
       );
 
@@ -261,7 +261,7 @@ export default Prediction;
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const data = await fetch(
-    "https://prediction-backend.vercel.app/getContests"
+    "https://prediction-backend-production.up.railway.app/getContests"
     // { mode: "no-cors"}
   );
   const contests = await data.json();
@@ -291,7 +291,7 @@ export const getStaticProps: GetStaticProps<Props, Params> = async (
 ) => {
   const { predictionId } = context.params!;
   const response = await fetch(
-    `https://prediction-backend.vercel.app/predictions?contestId=${predictionId}`
+    `https://prediction-backend-production.up.railway.app/predictions?contestId=${predictionId}`
     // { mode: "no-cors" }
   );
 
