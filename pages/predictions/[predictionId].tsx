@@ -139,6 +139,7 @@ const Prediction = ({ data, contestId }: props) => {
         try {
           console.log("Announcing Result");
           setPublishing(true);
+          getData();
           resolve();
         } catch (error) {
           reject(error);
