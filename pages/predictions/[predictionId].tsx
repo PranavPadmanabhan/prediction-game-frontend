@@ -138,7 +138,6 @@ const Prediction = ({ data, contestId }: props) => {
       contract?.once("ResultAnnounced", async () => {
         try {
           console.log("Announcing Result");
-          // await getResult();
           setPublishing(true);
           resolve();
         } catch (error) {
