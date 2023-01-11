@@ -72,7 +72,7 @@ function Header() {
   const listenForResult = async () => {
     const contract = await getPredictionContract("provider", chainId);
     await new Promise<void>((resolve, reject) => {
-      contract?.on("ContestCompleted", async () => {
+      contract?.on("ResultAnnounced", async () => {
         try {
           getBalance();
         } catch (error) {

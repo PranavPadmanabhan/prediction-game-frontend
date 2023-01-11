@@ -36,7 +36,7 @@ export const getPredictionContract = async (
   type: "signer" | "provider",
   chainId: any
 ) => {
-  if (typeof window.ethereum !== "undefined") {
+  if (typeof window !== "undefined") {
     if (type === "provider") {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const contract = new ethers.Contract(

@@ -30,6 +30,7 @@ const Prediction = ({ data, contestId }: props) => {
   const [value, setValue] = useState<string>("");
   const [predictions, setpredictions] = useState<any>(data);
   const [latestPrice, setLatestPrice] = useState<number>(0);
+  const [lastTimeStamp, setLastTimeStamp] = useState<any>(0);
   const [balance, setBalance] = useState<any>();
   const [publishing, setPublishing] = useState<boolean>(false);
   const amount = ethers.utils.parseEther("1");
@@ -50,14 +51,16 @@ const Prediction = ({ data, contestId }: props) => {
 
   const getData = async () => {
     try {
-      const response = await fetch(
-        `https://prediction-backend.vercel.app/predictions?contestId=${parseInt(
-          contestId
-        )}`,
-        { mode: "no-cors" }
-      );
-      const data = await response.json();
-      setpredictions(data);
+      fetch(
+        `http://localhost:5002/predictions?contestId=${parseInt(contestId)}`
+        // { mode: "no-cors" }
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          setpredictions(data);
+          // console.log(data);
+        });
+
       getUpdatedPrice();
     } catch (error) {
       console.error(error);
@@ -68,13 +71,12 @@ const Prediction = ({ data, contestId }: props) => {
     try {
       setPublishing(true);
       const response = await fetch(
-        `https://prediction-backend.vercel.app/getResult?contestId=${parseInt(
-          contestId
-        )}`,
-        { mode: "no-cors" }
+        `http://localhost:5002/getResult?contestId=${contestId}`
+        // { mode: "no-cors" }
       );
 
       const data = await response.json();
+      // console.log(data.results);
       if (data?.results?.length == 100) {
         setwinners(data?.results);
         setRewards(data?.rewards);
@@ -86,7 +88,6 @@ const Prediction = ({ data, contestId }: props) => {
         setPublishing(false);
       }
       getData();
-      setPublishing(false);
     } catch (error) {
       console.error(error);
     }
@@ -101,7 +102,7 @@ const Prediction = ({ data, contestId }: props) => {
   const listenPrediction = async () => {
     const contract = await getPredictionContract("provider", chainId);
     await new Promise<void>(async (resolve, reject) => {
-      contract?.on("NewPrediction", async () => {
+      contract?.once("NewPrediction", async () => {
         try {
           getData();
           resolve();
@@ -115,10 +116,10 @@ const Prediction = ({ data, contestId }: props) => {
   const listenForContestCompletion = async () => {
     const contract = await getPredictionContract("provider", chainId);
     await new Promise<void>(async (resolve, reject) => {
-      contract?.on("ContestCompleted", async () => {
+      contract?.once("ContestCompleted", async (contestId) => {
         try {
           getData().finally(() => setPublishing(false));
-          console.log("ContestCompleted");
+          console.log(`ContestCompleted - id : ${contestId.toString()}`);
 
           resolve();
         } catch (error) {
@@ -132,10 +133,10 @@ const Prediction = ({ data, contestId }: props) => {
     const contract = await getPredictionContract("provider", chainId);
 
     await new Promise<void>(async (resolve, reject) => {
-      contract?.on("ResultAnnounced", async () => {
+      contract?.once("ResultAnnounced", async () => {
         try {
           console.log("Announcing Result");
-          await getResult();
+          // await getResult();
           setPublishing(true);
           resolve();
         } catch (error) {
@@ -157,11 +158,27 @@ const Prediction = ({ data, contestId }: props) => {
     setValue("");
   };
 
-  useEffect(() => {
-    let timer: any;
+  const countDown = async () => {
+    const data = await fetch("http://localhost:5002/getLatestTime");
+    const time = await data.json();
+    const expire = new Date(time);
 
+    var countDownDate = expire.getTime(); //this the which i have to count for difference
+    let distance: number;
+
+    var now = new Date().getTime();
+
+    distance = countDownDate - now;
+    console.log(distance);
+  };
+
+  // useEffect(() => {
+  //   countDown();
+  // }, []);
+
+  useEffect(() => {
     if (account) {
-      getData();
+      // getData();
       getUpdatedPrice();
       listenPrediction();
       listenForResult();
@@ -175,9 +192,7 @@ const Prediction = ({ data, contestId }: props) => {
         setRewards(JSON.parse(reward));
       }
     }
-    return () => {
-      clearInterval(timer);
-    };
+    return () => {};
   }, [winners]);
 
   return (
@@ -263,8 +278,8 @@ export default Prediction;
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const data = await fetch(
-    "https://prediction-backend.vercel.app/getContests",
-    { mode: "no-cors" }
+    "http://localhost:5002/getContests"
+    // { mode: "no-cors"}
   );
   const contests = await data.json();
   const paths = contests.map((item: any) => {
@@ -293,10 +308,8 @@ export const getStaticProps: GetStaticProps<Props, Params> = async (
 ) => {
   const { predictionId } = context.params!;
   const response = await fetch(
-    `https://prediction-backend.vercel.app/predictions?contestId=${parseInt(
-      predictionId
-    )}`,
-    { mode: "no-cors" }
+    `http://localhost:5002/predictions?contestId=${predictionId}`
+    // { mode: "no-cors" }
   );
 
   const data = await response.json();

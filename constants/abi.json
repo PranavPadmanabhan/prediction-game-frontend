@@ -153,13 +153,6 @@
     "type": "event"
   },
   {
-    "inputs": [],
-    "name": "addFunds",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address[]",
@@ -167,19 +160,21 @@
         "type": "address[]"
       },
       {
-        "internalType": "uint256[]",
-        "name": "rewards",
-        "type": "uint256[]"
-      },
-      {
         "internalType": "uint256",
         "name": "contestId",
         "type": "uint256"
       }
     ],
-    "name": "automateResult",
+    "name": "Refund",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "addFunds",
+    "outputs": [],
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -449,13 +444,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "contestId",
-        "type": "uint256"
-      }
-    ],
+    "inputs": [],
     "name": "getTotalBalance",
     "outputs": [
       {
@@ -542,6 +531,29 @@
     "name": "predict",
     "outputs": [],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "addresses",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "rewards",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "contestId",
+        "type": "uint256"
+      }
+    ],
+    "name": "setReward",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
