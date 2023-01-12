@@ -34,13 +34,13 @@ export const getTokenAddress = (chainId: any) => {
 
 export const getPredictionContract = async (
   type: "signer" | "provider",
-  chainId: any
+  chainId?: any
 ) => {
   if (typeof window !== "undefined") {
     if (type === "provider") {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const contract = new ethers.Contract(
-        getContractAddress(chainId),
+        getContractAddress(chainId ?? 5),
         abi,
         provider
       );
@@ -49,7 +49,7 @@ export const getPredictionContract = async (
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(
-        getContractAddress(chainId),
+        getContractAddress(chainId ?? 5),
         abi,
         signer
       );
@@ -64,7 +64,7 @@ export const getSignerOrProvider = async (type: "provider" | "signer") => {
     if (type == "provider") {
       return provider;
     } else {
-      const signer = await provider.getSigner();
+      const signer = provider.getSigner();
       return signer;
     }
   }

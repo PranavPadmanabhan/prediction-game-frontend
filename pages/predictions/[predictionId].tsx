@@ -51,45 +51,23 @@ const Prediction = ({ data, contestId }: props) => {
 
   const getData = async () => {
     try {
-      fetch(
-        `https://prediction-backend-production.up.railway.app/predictions?contestId=${parseInt(
-          contestId
-        )}`
-        // { mode: "no-cors" }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          setpredictions(data);
-          // console.log(data);
-        });
-
-      getUpdatedPrice();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getResult = async () => {
-    try {
-      setPublishing(true);
-      const response = await fetch(
-        `https://prediction-backend-production.up.railway.app/getResult?contestId=${contestId}`
-        // { mode: "no-cors" }
+      const contract = await getPredictionContract("provider", chainId);
+      const lastPlayers = await contract?.getContestPlayers(
+        parseInt(contestId.toString())
+      );
+      const startingNumber = parseInt(lastPlayers.toString());
+      const data = await contract?.getPredictions(
+        parseInt(contestId.toString())
       );
 
-      const data = await response.json();
-      // console.log(data.results);
-      if (data?.results?.length == 100) {
-        setwinners(data?.results);
-        setRewards(data?.rewards);
-        if (typeof window !== undefined) {
-          window.localStorage.setItem("winners", JSON.stringify(data.results));
-          window.localStorage.setItem("reward", JSON.stringify(data.rewards));
+      const pred = data.filter((item: any, i: number) => {
+        if (i >= startingNumber) {
+          return item;
         }
-      } else if (data?.results.length == 0) {
-        setPublishing(false);
-      }
-      getData();
+      });
+
+      setpredictions(pred);
+      getUpdatedPrice();
     } catch (error) {
       console.error(error);
     }
@@ -131,6 +109,16 @@ const Prediction = ({ data, contestId }: props) => {
     });
   };
 
+  // const addTimer = async () => {
+  //   const res = await fetch(
+  //     "https://prediction-backend-production.up.railway.app/getLatestTime"
+  //   );
+  //   const date = await res.json();
+  //   const expire = new Date(date).getTime() * 1000;
+  //   let now = new Date().getTime();
+  //   console.log(expire - now);
+  // };
+
   const listenForResult = async () => {
     const contract = await getPredictionContract("provider", chainId);
 
@@ -161,7 +149,7 @@ const Prediction = ({ data, contestId }: props) => {
 
   useEffect(() => {
     if (account) {
-      // getData();
+      getData();
       getUpdatedPrice();
       listenPrediction();
       listenForResult();
@@ -175,6 +163,7 @@ const Prediction = ({ data, contestId }: props) => {
         setRewards(JSON.parse(reward));
       }
     }
+    // addTimer();
     return () => {};
   }, [winners]);
 
@@ -279,7 +268,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 type Props = {
-  data: any[];
+  // data: any[];
 };
 
 interface Params extends ParsedUrlQuery {
@@ -290,18 +279,9 @@ export const getStaticProps: GetStaticProps<Props, Params> = async (
   context
 ) => {
   const { predictionId } = context.params!;
-  const response = await fetch(
-    `https://prediction-backend-production.up.railway.app/predictions?contestId=${parseInt(
-      predictionId
-    )}`
-    // { mode: "no-cors" }
-  );
-
-  const data = await response.json();
-
   return {
     props: {
-      data: data,
+      // data: data,
       contestId: predictionId,
     },
     // props: { token }

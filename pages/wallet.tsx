@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import { useMoralis, useWeb3Contract } from "react-moralis";
