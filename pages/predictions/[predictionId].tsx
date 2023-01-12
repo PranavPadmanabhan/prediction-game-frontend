@@ -292,7 +292,9 @@ export const getStaticProps: GetStaticProps<Props, Params> = async (
 ) => {
   const { predictionId } = context.params!;
   const response = await fetch(
-    `https://prediction-backend.vercel.app/predictions?contestId=${predictionId}`
+    `https://prediction-backend.vercel.app/predictions?contestId=${parseInt(
+      predictionId
+    )}`
     // { mode: "no-cors" }
   );
 
