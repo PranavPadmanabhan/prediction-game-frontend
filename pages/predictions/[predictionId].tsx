@@ -82,7 +82,7 @@ const Prediction = ({ data, contestId }: props) => {
   const listenPrediction = async () => {
     const contract = await getPredictionContract("provider", chainId);
     await new Promise<void>(async (resolve, reject) => {
-      contract?.once("NewPrediction", async () => {
+      contract?.on("NewPrediction", async () => {
         try {
           getData();
           resolve();
@@ -96,7 +96,7 @@ const Prediction = ({ data, contestId }: props) => {
   const listenForContestCompletion = async () => {
     const contract = await getPredictionContract("provider", chainId);
     await new Promise<void>(async (resolve, reject) => {
-      contract?.once("ContestCompleted", async (contestId) => {
+      contract?.on("ContestCompleted", async (contestId) => {
         try {
           getData().finally(() => setPublishing(false));
           console.log(`ContestCompleted - id : ${contestId.toString()}`);
@@ -123,7 +123,7 @@ const Prediction = ({ data, contestId }: props) => {
     const contract = await getPredictionContract("provider", chainId);
 
     await new Promise<void>(async (resolve, reject) => {
-      contract?.once("ResultAnnounced", async () => {
+      contract?.on("ResultAnnounced", async () => {
         try {
           console.log("Announcing Result");
           setPublishing(true);
