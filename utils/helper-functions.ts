@@ -36,11 +36,12 @@ export const getPredictionContract = async (
   type: "signer" | "provider",
   chainId?: any
 ) => {
+  const id = chainId ? chainId : 5;
   if (typeof window !== "undefined") {
     if (type === "provider") {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const contract = new ethers.Contract(
-        getContractAddress(chainId ?? 5),
+        getContractAddress(id),
         abi,
         provider
       );
@@ -48,11 +49,7 @@ export const getPredictionContract = async (
     } else {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = await provider.getSigner();
-      const contract = new ethers.Contract(
-        getContractAddress(chainId ?? 5),
-        abi,
-        signer
-      );
+      const contract = new ethers.Contract(getContractAddress(id), abi, signer);
       return contract;
     }
   }

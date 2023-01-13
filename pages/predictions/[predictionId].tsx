@@ -13,7 +13,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useMoralis, useWeb3Contract } from "react-moralis";
 import Header from "../../components/Header";
-import { abi } from "../../constants/constants";
+import { abi, PROVIDER } from "../../constants/constants";
 import {
   getContractAddress,
   getPredictionContract,
@@ -22,14 +22,23 @@ import {
 type props = {
   data: any;
   contestId: any;
+  price: any;
+  decimals: any;
+  entranceFee: any;
 };
 
-const Prediction = ({ data, contestId }: props) => {
+const Prediction = ({
+  data,
+  contestId,
+  decimals,
+  price,
+  entranceFee,
+}: props) => {
   const router = useRouter();
 
   const [value, setValue] = useState<string>("");
   const [predictions, setpredictions] = useState<any>(data);
-  const [latestPrice, setLatestPrice] = useState<number>(0);
+  const [latestPrice, setLatestPrice] = useState<number>(price);
   const [lastTimeStamp, setLastTimeStamp] = useState<any>(0);
   const [balance, setBalance] = useState<any>();
   const [publishing, setPublishing] = useState<boolean>(false);
@@ -60,13 +69,13 @@ const Prediction = ({ data, contestId }: props) => {
         parseInt(contestId.toString())
       );
 
-      const pred = data.filter((item: any, i: number) => {
+      const predictions = data.filter((item: any, i: number) => {
         if (i >= startingNumber) {
           return item;
         }
       });
 
-      setpredictions(pred);
+      setpredictions(predictions);
       getUpdatedPrice();
     } catch (error) {
       console.error(error);
@@ -138,7 +147,6 @@ const Prediction = ({ data, contestId }: props) => {
 
   useEffect(() => {
     if (account) {
-      getData();
       getUpdatedPrice();
       listenPrediction();
       listenForResult();
@@ -171,7 +179,7 @@ const Prediction = ({ data, contestId }: props) => {
             className="w-[70%] h-[30%] max-h-[40px] rounded-xl bg-gray-100 my-5 shadow-card pl-[15px] box-border text-black "
           />
           <h1 className="text-gray-600 font-light my-2">
-            Prediction Fee : 1 TKN
+            Prediction Fee : {entranceFee} ETH
           </h1>
           <h1 className="text-gray-600 font-light ">
             Current Value : {latestPrice}
@@ -231,11 +239,10 @@ const Prediction = ({ data, contestId }: props) => {
 export default Prediction;
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const data = await fetch(
-    "https://prediction-backend-production.up.railway.app/getContests"
-    // { mode: "no-cors"}
-  );
-  const contests = await data.json();
+  const provider = new ethers.providers.WebSocketProvider(PROVIDER);
+  const contract = new ethers.Contract(getContractAddress(5), abi, provider);
+
+  const contests = await contract.getContests();
   const paths = contests.map((item: any) => {
     return {
       params: {
@@ -251,6 +258,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 type Props = {
   // data: any[];
+  contestId: any;
 };
 
 interface Params extends ParsedUrlQuery {
@@ -261,10 +269,46 @@ export const getStaticProps: GetStaticProps<Props, Params> = async (
   context
 ) => {
   const { predictionId } = context.params!;
+  const provider = new ethers.providers.WebSocketProvider(PROVIDER);
+  const contract = new ethers.Contract(getContractAddress(5), abi, provider);
+  const lastPlayers = await contract?.getContestPlayers(
+    parseInt(predictionId.toString())
+  );
+  const startingNumber = parseInt(lastPlayers.toString());
+  const predictionsData = await contract?.getPredictions(
+    parseInt(predictionId.toString())
+  );
+  const feeData = await contract.getEntranceFee();
+  const fee = parseFloat(
+    ethers.utils.formatEther(feeData.toString()).toString()
+  );
+  const priceData = await contract.getLatestPrice(
+    parseInt(predictionId.toString())
+  );
+
+  const price =
+    parseInt(priceData[0].toString()) / 10 ** parseInt(priceData[1].toString());
+
+  const predictions = predictionsData.filter((item: any, i: number) => {
+    if (i >= startingNumber) {
+      return item;
+    }
+  });
+
+  const data: any[] = predictions.map((item: any) => ({
+    predictedValue: parseFloat(item.predictedValue.toString()),
+    predictedAt: parseFloat(item.predictedAt.toString()),
+    difference: parseFloat(item.difference.toString()),
+    user: item.user.toString(),
+  }));
+
   return {
     props: {
-      // data: data,
+      data: data,
       contestId: predictionId,
+      price: price,
+      decimals: parseInt(priceData[1].toString()),
+      entranceFee: fee,
     },
     // props: { token }
     // You could do this either with useRouter or passing props
