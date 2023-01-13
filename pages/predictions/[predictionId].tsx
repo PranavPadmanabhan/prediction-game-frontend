@@ -153,7 +153,6 @@ const Prediction = ({
       listenForContestCompletion();
     }
 
-    // addTimer();
     return () => {};
   }, [contestId]);
 
@@ -238,53 +237,26 @@ const Prediction = ({
 
 export default Prediction;
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const provider = new ethers.providers.WebSocketProvider(PROVIDER);
-  const contract = new ethers.Contract(getContractAddress(5), abi, provider);
-
-  const contests = await contract.getContests();
-  const paths = contests.map((item: any) => {
-    return {
-      params: {
-        predictionId: item.id.toString(),
-      },
-    };
-  });
-  return {
-    paths,
-    fallback: false,
-  };
-};
-
-type Props = {
-  // data: any[];
-  contestId: any;
-};
-
-interface Params extends ParsedUrlQuery {
-  predictionId: string;
-}
-
-export const getStaticProps: GetStaticProps<Props, Params> = async (
-  context
-) => {
-  const { predictionId } = context.params!;
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  let predictionsData: any[];
+  let priceData: any;
+  const { predictionId } = context.query;
   const provider = new ethers.providers.WebSocketProvider(PROVIDER);
   const contract = new ethers.Contract(getContractAddress(5), abi, provider);
   const lastPlayers = await contract?.getContestPlayers(
-    parseInt(predictionId.toString())
+    parseInt(predictionId!.toString())
   );
   const startingNumber = parseInt(lastPlayers.toString());
-  const predictionsData = await contract?.getPredictions(
-    parseInt(predictionId.toString())
+
+  predictionsData = await contract?.getPredictions(
+    parseInt(predictionId!.toString())
   );
+
   const feeData = await contract.getEntranceFee();
   const fee = parseFloat(
     ethers.utils.formatEther(feeData.toString()).toString()
   );
-  const priceData = await contract.getLatestPrice(
-    parseInt(predictionId.toString())
-  );
+  priceData = await contract.getLatestPrice(parseInt(predictionId!.toString()));
 
   const price =
     parseInt(priceData[0].toString()) / 10 ** parseInt(priceData[1].toString());
@@ -310,7 +282,5 @@ export const getStaticProps: GetStaticProps<Props, Params> = async (
       decimals: parseInt(priceData[1].toString()),
       entranceFee: fee,
     },
-    // props: { token }
-    // You could do this either with useRouter or passing props
   };
 };
