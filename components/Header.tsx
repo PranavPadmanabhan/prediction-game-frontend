@@ -29,70 +29,56 @@ function Header() {
 
   const listenPrediction = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    await new Promise<void>((resolve, reject) => {
-      contract?.on("NewPrediction", async () => {
-        try {
-          getBalance();
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      });
+    contract?.on("NewPrediction", async () => {
+      try {
+        getBalance();
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
   const listenForTopUp = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    await new Promise<void>((resolve, reject) => {
-      contract?.on("WithdrawSuccessfull", async () => {
-        try {
-          getBalance();
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      });
+    contract?.on("WithdrawSuccessfull", async () => {
+      try {
+        getBalance();
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
   const listenForWithdraw = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    await new Promise<void>((resolve, reject) => {
-      contract?.on("TopUpSuccessfull", async () => {
-        try {
-          getBalance();
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      });
+    contract?.on("TopUpSuccessfull", async () => {
+      try {
+        getBalance();
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
   const listenForResult = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    await new Promise<void>((resolve, reject) => {
-      contract?.on("ResultAnnounced", async () => {
-        try {
-          getBalance();
-        } catch (error) {
-          reject(error);
-        }
-      });
+    contract?.on("ResultAnnounced", async () => {
+      try {
+        getBalance();
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
   const listenForContestCompletion = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    await new Promise<void>(async (resolve, reject) => {
-      contract?.on("ContestCompleted", async () => {
-        try {
-          getBalance();
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      });
+    contract?.on("ContestCompleted", async () => {
+      try {
+        getBalance();
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 

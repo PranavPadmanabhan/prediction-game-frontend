@@ -48,46 +48,37 @@ const Wallet = () => {
 
   const listenForTopUp = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    await new Promise<void>((resolve, reject) => {
       contract?.on("TopUpSuccessfull", async () => {
         try {
           getBalance();
           setAmount("");
-          resolve();
         } catch (error) {
-          reject(error);
+          console.error(error);
         }
       });
-    });
   };
 
   const listenForWithdraw = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    await new Promise<void>((resolve, reject) => {
       contract?.on("WithdrawSuccessfull", async () => {
         try {
           getBalance();
           setAmount("");
-          resolve();
         } catch (error) {
-          reject(error);
+          console.error(error);
         }
       });
-    });
   };
 
   const listenForContestCompletion = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    await new Promise<void>(async (resolve, reject) => {
       contract?.on("ContestCompleted", async () => {
         try {
           getBalance();
-          resolve();
         } catch (error) {
-          reject(error);
+          console.error(error);
         }
       });
-    });
   };
 
   useEffect(() => {

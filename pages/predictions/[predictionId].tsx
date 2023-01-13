@@ -81,31 +81,24 @@ const Prediction = ({ data, contestId }: props) => {
 
   const listenPrediction = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    await new Promise<void>(async (resolve, reject) => {
-      contract?.on("NewPrediction", async () => {
-        try {
-          getData();
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      });
+    contract?.on("NewPrediction", async () => {
+      try {
+        getData();
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
   const listenForContestCompletion = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    await new Promise<void>(async (resolve, reject) => {
-      contract?.on("ContestCompleted", async (contestId) => {
-        try {
-          getData().finally(() => setPublishing(false));
-          console.log(`ContestCompleted - id : ${contestId.toString()}`);
-
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      });
+    contract?.on("ContestCompleted", async (contestId) => {
+      try {
+        getData().finally(() => setPublishing(false));
+        console.log(`ContestCompleted - id : ${contestId.toString()}`);
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
@@ -121,17 +114,13 @@ const Prediction = ({ data, contestId }: props) => {
 
   const listenForResult = async () => {
     const contract = await getPredictionContract("provider", chainId);
-
-    await new Promise<void>(async (resolve, reject) => {
-      contract?.on("ResultAnnounced", async () => {
-        try {
-          console.log("Announcing Result");
-          setPublishing(true);
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      });
+    contract?.on("ResultAnnounced", async () => {
+      try {
+        console.log("Announcing Result");
+        setPublishing(true);
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
