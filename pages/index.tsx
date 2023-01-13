@@ -39,24 +39,20 @@ export default function Home() {
   // });
 
   const updateUI = async () => {
-    if (typeof window.ethereum !== "undefined") {
-      const provider = new ethers.providers.WebSocketProvider(PROVIDER);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(
-        getContractAddress(chainId),
-        abi,
-        signer
-      );
-    }
+    const provider = new ethers.providers.WebSocketProvider(PROVIDER);
+    const contract = new ethers.Contract(
+      getContractAddress(chainId),
+      abi,
+      provider
+    );
   };
 
   const GetContest = async () => {
     const provider = new ethers.providers.WebSocketProvider(PROVIDER);
-    const signer = await provider.getSigner();
     const contract = new ethers.Contract(
       getContractAddress(chainId),
       abi,
-      signer
+      provider
     );
     const contests = await contract.getContests();
     setContests(contests);
@@ -64,11 +60,10 @@ export default function Home() {
 
   const GetContestFee = async () => {
     const provider = new ethers.providers.WebSocketProvider(PROVIDER);
-    const signer = await provider.getSigner();
     const contract = new ethers.Contract(
       getContractAddress(chainId),
       abi,
-      signer
+      provider
     );
     const price = await contract.getEntranceFee();
     setfee(ethers.utils.formatEther(price!.toString()));
