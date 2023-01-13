@@ -155,12 +155,10 @@ const Prediction = ({
   };
 
   useEffect(() => {
-    if (account) {
-      getUpdatedPrice();
-      listenPrediction();
-      listenForResult();
-      listenForContestCompletion();
-    }
+    getUpdatedPrice();
+    listenPrediction();
+    listenForResult();
+    listenForContestCompletion();
 
     return () => {};
   }, [contestId]);

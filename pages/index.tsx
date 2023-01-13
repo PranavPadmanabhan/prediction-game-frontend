@@ -61,11 +61,9 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (isWeb3Enabled) {
-      updateUI();
-      GetContest();
-      GetContestFee();
-    }
+    updateUI();
+    GetContest();
+    GetContestFee();
   }, [isWeb3Enabled, account]);
 
   return (

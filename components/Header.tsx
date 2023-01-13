@@ -85,12 +85,12 @@ function Header() {
   useEffect(() => {
     if (account) {
       getBalance();
-      listenForResult();
-      listenPrediction();
-      listenForTopUp();
-      listenForWithdraw();
-      listenForContestCompletion();
     }
+    listenForResult();
+    listenPrediction();
+    listenForTopUp();
+    listenForWithdraw();
+    listenForContestCompletion();
   }, [account]);
 
   return (
