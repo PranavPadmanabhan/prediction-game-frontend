@@ -22,11 +22,6 @@
   },
   {
     "inputs": [],
-    "name": "Admin_Withdraw_Failed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "Prediction__Limit_Exceeded",
     "type": "error"
   },
@@ -158,11 +153,6 @@
         "internalType": "address[]",
         "name": "addresses",
         "type": "address[]"
-      },
-      {
-        "internalType": "uint256",
-        "name": "contestId",
-        "type": "uint256"
       }
     ],
     "name": "Refund",
@@ -218,6 +208,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "contestId",
+        "type": "uint256"
+      }
+    ],
+    "name": "declareCompletetion",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -467,36 +470,9 @@
     "name": "getWinners",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "int256",
-            "name": "predictedValue",
-            "type": "int256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "predictedAt",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "difference",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "user",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct PredictionContract.Prediction[]",
+        "internalType": "address[]",
         "name": "",
-        "type": "tuple[]"
+        "type": "address[]"
       }
     ],
     "stateMutability": "view",
@@ -544,11 +520,6 @@
         "internalType": "uint256[]",
         "name": "rewards",
         "type": "uint256[]"
-      },
-      {
-        "internalType": "uint256",
-        "name": "contestId",
-        "type": "uint256"
       }
     ],
     "name": "setReward",

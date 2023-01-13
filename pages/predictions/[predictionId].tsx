@@ -42,7 +42,6 @@ const Prediction = ({
   const [lastTimeStamp, setLastTimeStamp] = useState<any>(0);
   const [balance, setBalance] = useState<any>();
   const [publishing, setPublishing] = useState<boolean>(false);
-  const amount = ethers.utils.parseEther("1");
   const [winners, setwinners] = useState<Array<any>>([]);
   const { chainId: chainHex, account, isWeb3Enabled } = useMoralis();
   const chainId = parseInt(chainHex!);
@@ -54,7 +53,7 @@ const Prediction = ({
     functionName: "predict",
     params: {
       contestId: contestId,
-      _predictedValue: parseInt(value),
+      _predictedValue: parseFloat(value) * 10 ** decimals,
     },
   });
 
@@ -65,17 +64,24 @@ const Prediction = ({
         parseInt(contestId.toString())
       );
       const startingNumber = parseInt(lastPlayers.toString());
-      const data = await contract?.getPredictions(
+      const predictionsData = await contract?.getPredictions(
         parseInt(contestId.toString())
       );
 
-      const predictions = data.filter((item: any, i: number) => {
+      const predictions = predictionsData.filter((item: any, i: number) => {
         if (i >= startingNumber) {
           return item;
         }
       });
+      const divisor = 10 ** decimals;
 
-      setpredictions(predictions);
+      const data: any[] = predictions.map((item: any) => ({
+        predictedValue: parseFloat(item.predictedValue.toString()) / divisor,
+        predictedAt: parseFloat(item.predictedAt.toString()),
+        difference: parseFloat(item.difference.toString()),
+        user: item.user.toString(),
+      }));
+      setpredictions(data);
       getUpdatedPrice();
     } catch (error) {
       console.error(error);
@@ -84,7 +90,9 @@ const Prediction = ({
 
   const getUpdatedPrice = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    const priceData = await contract!.getLatestPrice(contestId);
+    const priceData = await contract!.getLatestPrice(
+      parseInt(contestId.toString())
+    );
     setLatestPrice(parseInt(priceData[0].toString()) / 10 ** priceData[1]);
   };
 
@@ -101,9 +109,11 @@ const Prediction = ({
 
   const listenForContestCompletion = async () => {
     const contract = await getPredictionContract("provider", chainId);
-    contract?.on("ContestCompleted", async (contestId) => {
+    contract?.on("ContestCompleted", async (id) => {
       try {
-        getData().finally(() => setPublishing(false));
+        if (id == contestId) {
+          getData().finally(() => setPublishing(false));
+        }
         console.log(`ContestCompleted - id : ${contestId.toString()}`);
       } catch (error) {
         console.error(error);
@@ -125,7 +135,6 @@ const Prediction = ({
     const contract = await getPredictionContract("provider", chainId);
     contract?.on("ResultAnnounced", async () => {
       try {
-        console.log("Announcing Result");
         setPublishing(true);
       } catch (error) {
         console.error(error);
@@ -267,19 +276,23 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
   });
 
+  const decimals = parseInt(priceData[1].toString());
+
   const data: any[] = predictions.map((item: any) => ({
-    predictedValue: parseFloat(item.predictedValue.toString()),
+    predictedValue: parseFloat(item.predictedValue.toString()) / 10 ** decimals,
     predictedAt: parseFloat(item.predictedAt.toString()),
     difference: parseFloat(item.difference.toString()),
     user: item.user.toString(),
   }));
 
+  const gasLimit = (await provider.getBlock("latest")).gasLimit;
+
   return {
     props: {
-      data: data,
+      data,
       contestId: predictionId,
-      price: price,
-      decimals: parseInt(priceData[1].toString()),
+      price,
+      decimals,
       entranceFee: fee,
     },
   };
