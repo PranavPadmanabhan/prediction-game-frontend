@@ -144,17 +144,10 @@ const Prediction = ({ data, contestId }: props) => {
       listenForResult();
       listenForContestCompletion();
     }
-    if (typeof window! === undefined && winners?.length === 0) {
-      const data = window.localStorage.getItem("winners");
-      const reward = window.localStorage.getItem("reward");
-      if (data && reward) {
-        setwinners(JSON.parse(data));
-        setRewards(JSON.parse(reward));
-      }
-    }
+
     // addTimer();
     return () => {};
-  }, [winners]);
+  }, [contestId]);
 
   return (
     <div
