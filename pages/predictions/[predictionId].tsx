@@ -135,7 +135,9 @@ const Prediction = ({
     const contract = await getPredictionContract("provider", chainId);
     contract?.on("ResultAnnounced", async () => {
       try {
-        setPublishing(true);
+        if (predictions.length > 0) {
+          setPublishing(true);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -155,10 +157,12 @@ const Prediction = ({
   };
 
   useEffect(() => {
-    getUpdatedPrice();
-    listenPrediction();
-    listenForResult();
-    listenForContestCompletion();
+    if (account) {
+      getUpdatedPrice();
+      listenPrediction();
+      listenForResult();
+      listenForContestCompletion();
+    }
 
     return () => {};
   }, [contestId]);
