@@ -6,7 +6,7 @@ import {
   getPredictionContract,
   getTokenAddress,
 } from "../utils/helper-functions";
-import { abi, PROVIDER, tokenABI } from "../constants/constants";
+import { abi, tokenABI } from "../constants/constants";
 import { useMoralis, useWeb3Contract } from "react-moralis";
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
@@ -28,12 +28,7 @@ function Header() {
   };
 
   const listenPrediction = async () => {
-    const provider = new ethers.providers.WebSocketProvider(PROVIDER);
-    const contract = new ethers.Contract(
-      getContractAddress(chainId),
-      abi,
-      provider
-    );
+    const contract = await getPredictionContract("provider", chainId);
     contract?.on("NewPrediction", async () => {
       try {
         getBalance();
@@ -44,12 +39,7 @@ function Header() {
   };
 
   const listenForTopUp = async () => {
-    const provider = new ethers.providers.WebSocketProvider(PROVIDER);
-    const contract = new ethers.Contract(
-      getContractAddress(chainId),
-      abi,
-      provider
-    );
+    const contract = await getPredictionContract("provider", chainId);
     contract?.on("WithdrawSuccessfull", async () => {
       try {
         getBalance();
@@ -60,12 +50,7 @@ function Header() {
   };
 
   const listenForWithdraw = async () => {
-    const provider = new ethers.providers.WebSocketProvider(PROVIDER);
-    const contract = new ethers.Contract(
-      getContractAddress(chainId),
-      abi,
-      provider
-    );
+    const contract = await getPredictionContract("provider", chainId);
     contract?.on("TopUpSuccessfull", async () => {
       try {
         getBalance();
@@ -76,12 +61,7 @@ function Header() {
   };
 
   const listenForResult = async () => {
-    const provider = new ethers.providers.WebSocketProvider(PROVIDER);
-    const contract = new ethers.Contract(
-      getContractAddress(chainId),
-      abi,
-      provider
-    );
+    const contract = await getPredictionContract("provider", chainId);
     contract?.on("ResultAnnounced", async () => {
       try {
         getBalance();
@@ -92,12 +72,7 @@ function Header() {
   };
 
   const listenForContestCompletion = async () => {
-    const provider = new ethers.providers.WebSocketProvider(PROVIDER);
-    const contract = new ethers.Contract(
-      getContractAddress(chainId),
-      abi,
-      provider
-    );
+    const contract = await getPredictionContract("provider", chainId);
     contract?.on("ContestCompleted", async () => {
       try {
         getBalance();
@@ -110,12 +85,12 @@ function Header() {
   useEffect(() => {
     if (account) {
       getBalance();
+      listenForResult();
+      listenPrediction();
+      listenForTopUp();
+      listenForWithdraw();
+      listenForContestCompletion();
     }
-    listenForResult();
-    listenPrediction();
-    listenForTopUp();
-    listenForWithdraw();
-    listenForContestCompletion();
   }, [account]);
 
   return (
