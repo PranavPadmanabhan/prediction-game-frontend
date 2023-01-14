@@ -114,7 +114,7 @@ const Prediction = ({
         if (id == contestId) {
           getData().finally(() => setPublishing(false));
         }
-        console.log(`ContestCompleted - id : ${contestId.toString()}`);
+        // console.log(`ContestCompleted - id : ${contestId.toString()}`);
       } catch (error) {
         console.error(error);
       }
