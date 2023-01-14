@@ -7,7 +7,7 @@ import Header from "../components/Header";
 import Modal from "../components/Modal";
 import PredictionCards from "../components/PredictionCards";
 import { getContractAddress, getTokenAddress } from "../utils/helper-functions";
-import { abi, PROVIDER } from "../constants/constants";
+import { abi } from "../constants/constants";
 import { useRouter } from "next/router";
 
 declare global {
@@ -24,55 +24,48 @@ export default function Home() {
   const chainId = parseInt(chainHex!);
   const router = useRouter();
 
-  // const { runContractFunction: getFee } = useWeb3Contract({
-  //   abi: abi,
-  //   contractAddress: getContractAddress(chainId),
-  //   functionName: "getEntranceFee",
-  //   params: {},
-  // });
+  const { runContractFunction: getFee } = useWeb3Contract({
+    abi: abi,
+    contractAddress: getContractAddress(chainId),
+    functionName: "getEntranceFee",
+    params: {},
+  });
 
-  // const { runContractFunction: getContests } = useWeb3Contract({
-  //   abi: abi,
-  //   contractAddress: getContractAddress(chainId),
-  //   functionName: "getContests",
-  //   params: {},
-  // });
+  const { runContractFunction: getContests } = useWeb3Contract({
+    abi: abi,
+    contractAddress: getContractAddress(chainId),
+    functionName: "getContests",
+    params: {},
+  });
 
   const updateUI = async () => {
-    const provider = new ethers.providers.WebSocketProvider(PROVIDER);
-    const contract = new ethers.Contract(
-      getContractAddress(chainId),
-      abi,
-      provider
-    );
+    if (typeof window.ethereum !== "undefined") {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(
+        getContractAddress(chainId),
+        abi,
+        signer
+      );
+    }
   };
 
   const GetContest = async () => {
-    const provider = new ethers.providers.WebSocketProvider(PROVIDER);
-    const contract = new ethers.Contract(
-      getContractAddress(chainId),
-      abi,
-      provider
-    );
-    const contests = await contract.getContests();
+    const contests = await getContests();
     setContests(contests);
   };
 
   const GetContestFee = async () => {
-    const provider = new ethers.providers.WebSocketProvider(PROVIDER);
-    const contract = new ethers.Contract(
-      getContractAddress(chainId),
-      abi,
-      provider
-    );
-    const price = await contract.getEntranceFee();
+    const price = await getFee();
     setfee(ethers.utils.formatEther(price!.toString()));
   };
 
   useEffect(() => {
-    updateUI();
-    GetContest();
-    GetContestFee();
+    if (isWeb3Enabled) {
+      updateUI();
+      GetContest();
+      GetContestFee();
+    }
   }, [isWeb3Enabled, account]);
 
   return (
